@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Xtremer Live Likes Booster</title>
+
+  <!-- FONTS -->
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body, html {
+      height: 100%;
+      font-family: 'Orbitron', 'Audiowide', sans-serif;
+      background: radial-gradient(ellipse at center, #000000 0%, #0a0a0a 100%);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    canvas#particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px #ff00cc;
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 20px;
+      box-shadow: 0 0 25px #ff00cc;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      color: #ff00cc;
+      text-shadow: 0 0 12px #ff00cc;
+      margin-bottom: 10px;
+    }
+
+    .powered {
+      color: #f48fb1;
+      margin-bottom: 20px;
+      font-size: 1rem;
+      font-family: 'Audiowide', sans-serif;
+    }
+
+    input[type="number"] {
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      width: 100%;
+      margin-bottom: 14px;
+      font-size: 1rem;
+      background: #1c1c1c;
+      color: #fff;
+      outline: none;
+    }
+
+    button {
+      background-color: #ff00cc;
+      color: #fff;
+      border: none;
+      padding: 14px 24px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      font-family: 'Orbitron', sans-serif;
+      transition: 0.3s;
+      animation: neonGlow 1.5s infinite alternate;
+    }
+
+    button:hover {
+      background-color: #d400aa;
+      transform: scale(1.05);
+    }
+
+    @keyframes neonGlow {
+      0%   { box-shadow: 0 0 8px #ff00cc; }
+      100% { box-shadow: 0 0 24px #ff00cc, 0 0 48px #ff00cc; }
+    }
+
+    #result {
+      margin-top: 22px;
+      text-align: left;
+      font-size: 0.95rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 18px;
+      display: none;
+    }
+
+    .label { color: #ccc; }
+    .value { color: #f48fb1; font-weight: bold; }
+    .likes { color: #69f0ae; font-weight: bold; }
+    .likes-change { color: #ff1744; margin-left: 6px; }
+
+    footer {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #bbb;
+      font-family: 'Audiowide', monospace;
+    }
+
+    footer a {
+      color: #ff4081;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles-js"></canvas>
+
+  <div class="container">
+    <img src="xtremerlive.jpg" class="logo" alt="Xtremer Logo" />
+    <h2>Xtremer Live</h2>
+    <div class="powered">Powered by Xtremer Live</div>
+    <input type="number" id="uidInput" placeholder="Enter UID" />
+    <button onclick="handleClick()">Get Likes</button>
+    <div id="result"></div>
+  </div>
+
+  <footer>
+    Made with ❤️ by <a href="https://www.youtube.com/@xtremerliveff" target="_blank">Xtremer Live</a>
+  </footer>
+
+  <!-- Sound -->
+  <audio id="clickSound" src="click.wav"></audio>
+  <audio id="introSound" src="XtremerLiveFF.wav"></audio>
+  <audio id="applySound" src="XApplying.wav"></audio>
+
+  <script>
+    let soundPlayed = false;
+    window.addEventListener("click", () => {
+      if (soundPlayed) return;
+      soundPlayed = true;
+      document.getElementById("clickSound").play();
+      setTimeout(() => {
+        document.getElementById("introSound").play();
+      }, 5000);
+    }, { once: true });
+
+    function decodeUnicode(str) {
+      try {
+        return decodeURIComponent(JSON.parse('"' + str + '"'));
+      } catch {
+        return str;
+      }
+    }
+
+    function showResult(html) {
+      const resultBox = document.getElementById("result");
+      resultBox.innerHTML = html;
+      resultBox.style.display = "block";
+    }
+
+    async function handleClick() {
+      playApplySound();
+      const uid = document.getElementById("uidInput").value.trim();
+      if (!uid) {
+        showResult(`<div style="color:#ff5252;">⚠️ Please enter a UID.</div>`);
+        return;
+      }
+
+      showResult(`<div>⏳ Fetching data...</div>`);
+
+      const proxyUrl = "https://api.allorigins.win/raw?url=";
+      const apiUrl = `https://likexthug.vercel.app/like?uid=${uid}&region=ind&key=GREAT`;
+      const fullUrl = proxyUrl + encodeURIComponent(apiUrl);
+
+      try {
+        const response = await fetch(fullUrl);
+        const text = await response.text();
+        const data = JSON.parse(text);
+
+        if (!data.player) {
+          showResult(`<div style="color:#ff5252;">❌ Invalid UID or request blocked.</div>`);
+          return;
+        }
+
+        const nickname = decodeUnicode(data.player.nickname);
+        const likeBefore = data.likes.before.toLocaleString();
+        const likeAfter = data.likes.after.toLocaleString();
+        const likeDiff = data.likes.after - data.likes.before;
+        const likeChangeHtml = likeDiff !== 0 ? `<span class="likes-change">(${likeDiff > 0 ? "+" : ""}${likeDiff})</span>` : '';
+        const likeAdded = data.likes.added_by_api > 0;
+
+        showResult(`
+          <div><span class="label">Nickname:</span> <span class="value">${nickname}</span></div>
+          <div><span class="label">UID:</span> <span class="value">${data.player.uid}</span></div>
+          <div><span class="label">Region:</span> <span class="value">${data.player.region}</span></div>
+          <div><span class="label">Likes Before:</span> <span class="likes">${likeBefore}</span></div>
+          <div><span class="label">Likes After:</span> <span class="likes">${likeAfter}</span> ${likeChangeHtml}</div>
+          <div><span class="label">Like Added by API:</span> <span class="value">${likeAdded ? '✅ Yes' : '❌ No'}</span></div>
+        `);
+      } catch (err) {
+        showResult(`<div style="color:#ff1744;">⚠️ Failed to load response.</div>`);
+      }
+    }
+
+    function playApplySound() {
+      document.getElementById("applySound").play();
+    }
+  </script>
+
+  <!-- Particles.js -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script>
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": "#ff00cc" },
+        "shape": { "type": "polygon" },
+        "opacity": { "value": 0.7, "random": true },
+        "size": { "value": 4, "random": true },
+        "line_linked": { "enable": false },
+        "move": {
+          "enable": true,
+          "speed": 6,
+          "direction": "bottom",
+          "random": false,
+          "straight": false,
+          "out_mode": "out",
+          "bounce": false
+        }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": { "onhover": { "enable": true, "mode": "repulse" } },
+        "modes": { "repulse": { "distance": 120, "duration": 0.4 } }
+      },
+      "retina_detect": true
+    });
+  </script>
+</body>
+</html>
