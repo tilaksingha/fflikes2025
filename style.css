@@ -1,0 +1,8 @@
+button {
+  animation: neonGlow 1.5s infinite alternate;
+}
+
+@keyframes neonGlow {
+  0%   { box-shadow: 0 0 8px #ff00cc; }
+  100% { box-shadow: 0 0 24px #ff00cc, 0 0 48px #ff00cc; }
+}
